@@ -1,4 +1,4 @@
-package com.shadow.navbug.theme
+package com.shadow.navbug.ui.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
