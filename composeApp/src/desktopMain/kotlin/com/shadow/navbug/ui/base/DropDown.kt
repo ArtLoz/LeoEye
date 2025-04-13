@@ -9,8 +9,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,7 +43,7 @@ fun DropdownDevice(
                     onClickRefresh()
                     expanded = true
                 }
-                .width(225.dp)
+                .width(240.dp)
                 .border(1.dp, Color.Black, shape = RoundedCornerShape(percent = 15))
                 .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -51,7 +54,7 @@ fun DropdownDevice(
             )
             Text(
                 modifier = Modifier.padding(start = 4.dp),
-                text = selectedDevice?.name?:"",
+                text = selectedDevice?.name ?: "",
                 style = MaterialTheme.typography.bodyLarge
             )
         }
@@ -66,6 +69,53 @@ fun DropdownDevice(
                         expanded = false
                     },
                     text = { Text(text = item.name) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun DropdownConfig(
+    modifier: Modifier = Modifier,
+    listValue: List<String>,
+    selectedValue: String,
+    onValueChange: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box(
+        modifier = modifier
+            .clickable {
+                expanded = true
+            }) {
+        Row(
+            modifier = Modifier
+                .padding(2.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier.padding(start = 4.dp)
+                    .weight(1f),
+                text = selectedValue,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Icon(
+                modifier = Modifier.padding(start = 4.dp),
+                imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = null,
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            listValue.forEach { item ->
+                DropdownMenuItem(
+                    onClick = {
+                        onValueChange(item)
+                        expanded = false
+                    },
+                    text = { Text(text = item) }
                 )
             }
         }

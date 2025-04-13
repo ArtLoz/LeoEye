@@ -11,6 +11,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlin.jvm.Throws
 
@@ -24,7 +25,7 @@ class SerialService {
     val inputDataFlow = _inputDataFlow.asSharedFlow()
 
     private val _isConnected = MutableStateFlow(false)
-    val isConnected = _isConnected.asSharedFlow()
+    val isConnected = _isConnected.asStateFlow()
 
 
     fun getAvailablePorts(): List<LeoDevice> {
@@ -52,7 +53,7 @@ class SerialService {
         val buffer = ByteArray(1024)
         val deviceListener = createDataListener(serialPort, buffer)
         serialPort.addDataListener(deviceListener)
-        _isConnected.value = true
+        statusDevice()
     }
 
     private fun configureSerialPort(portName: String, baudRate: Int): SerialPort? {
@@ -75,7 +76,6 @@ class SerialService {
             override fun getListeningEvents(): Int = SerialPort.LISTENING_EVENT_DATA_AVAILABLE
 
             override fun serialEvent(event: SerialPortEvent?) {
-                println("serialEvent")
                 if (event?.eventType != SerialPort.LISTENING_EVENT_DATA_AVAILABLE) return
                 val available = serialPort.bytesAvailable()
                 if (available <= 0) return
@@ -83,9 +83,12 @@ class SerialService {
                 if (bytesRead > 0) {
                     try {
                         val data = buffer.copyOf(bytesRead)
+                        if(data.size < 2) return
                         val command = data.copyOfRange(0, 2)
-                        val payload = data.copyOfRange(2, bytesRead)
-//                        if (command.takeShort() == POLLING) statusDevice()
+                        if (command.takeShortBE() == POLLING) statusDevice()
+                        val payload = if(data .size > 2) {
+                            data.copyOfRange(2, bytesRead)
+                        } else { ByteArray(0) }
                         _inputDataFlow.tryEmit(SerialData(command, payload))
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -106,13 +109,14 @@ class SerialService {
     }
 
     fun writeData(data: ByteArray) {
-        currentConnectionDevice?.writeBytes(data, data.size)
+        if(isConnected.value) currentConnectionDevice?.writeBytes(data, data.size)
     }
 
     fun disconnect() {
         currentConnectionDevice?.let {
-            it.removeDataListener()
             it.closePort()
+            it.removeDataListener()
+
         }
         deviceListener = null
         currentConnectionDevice = null

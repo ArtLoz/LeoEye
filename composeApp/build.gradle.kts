@@ -36,15 +36,22 @@ kotlin {
     }
 }
 
-
+val pkgVersion = "1.0.1"
+val appName = "Leo Eye"
 compose.desktop {
     application {
         mainClass = "com.shadow.navbug.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.shadow.navbug"
-            packageVersion = "1.0.0"
+            packageName = appName
+            packageVersion = pkgVersion
+            windows{
+                version = pkgVersion
+                dirChooser = true
+                menuGroup = appName
+                iconFile.set(project.file("app_logo.ico"))
+            }
         }
     }
 }

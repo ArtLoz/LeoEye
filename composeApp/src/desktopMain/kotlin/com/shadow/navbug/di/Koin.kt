@@ -5,7 +5,7 @@ import org.koin.core.context.startKoin
 fun initKoin() {
     startKoin {
         modules(
-            serviceModules, viewModelsModule,jNativeHookModule
+            serviceModules, viewModelsModule, jNativeHookModule, useCase
         )
     }
 }

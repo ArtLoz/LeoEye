@@ -74,7 +74,7 @@ class GlobalListener {
     inner class JNativeKeyListener : NativeKeyListener {
         override fun nativeKeyReleased(nativeEvent: NativeKeyEvent?) {
             super.nativeKeyReleased(nativeEvent)
-            println("key released: ${nativeEvent?.keyCode}")
+          //  println("key released: ${nativeEvent?.keyCode}")
             _globalListenerEventFlow.tryEmit(GlobalListenerEvent.KeyboardEvent(keyCode = nativeEvent?.keyCode ?: -1))
         }
     }
